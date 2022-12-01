@@ -11,7 +11,9 @@ export async function getBookings(req: AuthenticatedRequest, res: Response) {
 
     return res.status(httpStatus.OK).send(booking);
   } catch (error) {
-    //TODO error ifs
+    if(error.name === "forbiddenError") {
+      return res.sendStatus(httpStatus.FORBIDDEN);
+    }
     return res.sendStatus(httpStatus.NOT_FOUND);
   }
 }
