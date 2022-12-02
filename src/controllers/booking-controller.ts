@@ -2,7 +2,6 @@ import { AuthenticatedRequest } from "@/middlewares";
 import bookingService from "@/services/booking-service";
 import { Response } from "express";
 import httpStatus from "http-status";
-import { number } from "joi";
 
 export async function getBookings(req: AuthenticatedRequest, res: Response) {
   const { userId } = req;
@@ -25,6 +24,27 @@ export async function createBooking(req: AuthenticatedRequest, res: Response) {
 
   try {
     const booking = await bookingService.createBooking(Number(userId), Number(roomId));
+
+    return res.status(httpStatus.OK).send({ bookingId: booking.id });
+  } catch (error) {
+    if (error.name === "forbiddenError") {
+      return res.sendStatus(httpStatus.FORBIDDEN);
+    }
+    if(error.name === "badRequestError") {
+      return res.sendStatus(httpStatus.BAD_REQUEST);
+    }
+    return res.sendStatus(httpStatus.NOT_FOUND);
+  }
+}
+
+export async function updateBooking(req: AuthenticatedRequest, res: Response) {
+  const { userId } = req;
+  const { roomId } = req.body;
+  const { bookingId } = req.params;
+
+  try {
+    const booking = await bookingService.updateBooking(Number(userId), Number(roomId), Number(bookingId));
+
     return res.status(httpStatus.OK).send({ bookingId: booking.id });
   } catch (error) {
     if (error.name === "forbiddenError") {
